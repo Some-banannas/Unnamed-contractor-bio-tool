@@ -1,10 +1,12 @@
+import { AppBar, Box, Button } from "@mui/material";
 
 
-export default function Home(){
-    return(
+export default function Home() {
+    return (
 
-        <div>
-        </div>
-    
+        <Box sx={{ width: '100%', height: '100%', bgcolor: 'red' }}>
+
+        </Box>
+
     )
 }
