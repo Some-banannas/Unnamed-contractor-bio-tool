@@ -1,16 +1,35 @@
-import { MikroORM } from "@mikro-orm/core"
-import { User } from "./entities/User";
-
+//@ts-nocheck
+import { MikroORM } from "@mikro-orm/core";
 import config from "./mikro-orm.config";
+import express from "express";
+import { ApolloServer } from "apollo-server-express";
+import { buildSchema } from "type-graphql";
+import { HelloResolver } from "./resolvers/hello";
+import { UserResolver } from "./resolvers/user";
 
 const main = async () => {
-    // console.log(microConfig)
-    const orm = await MikroORM.init(config);
+  // console.log(microConfig)
+  const orm = await MikroORM.init(config);
+  await orm.getMigrator().up();
 
-    const user = orm.em.create(User, { email: 'cooper.smith9863@gmail.com', password: "Qwerty1" })
-    await orm.em.persistAndFlush(user)
-}
+  const app = express();
+
+  const apolloServer = new ApolloServer({
+    schema: await buildSchema({
+      resolvers: [HelloResolver, UserResolver],
+      validate: false,
+    }),
+    context: () => ({ em: orm.em }),
+  });
+
+  await apolloServer.start();
+  apolloServer.applyMiddleware({ app });
+
+  app.listen(4000, () => {
+    console.log("Server is running on port 4000");
+  });
+};
 
 main().catch((err) => {
-    console.error(err)
+  console.error(err);
 });
