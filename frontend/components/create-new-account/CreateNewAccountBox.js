@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react"
 import { MainCreateNewAccountBox } from "./index"
 import { useRouter } from "next/router"
 import { setRequestMeta } from "next/dist/server/request-meta"
-
+import { useMutation, useQuery } from '@apollo/client'
+import { CREATE_USER, Login_User, ME } from "../../client/userQueries"
 
 function CreateNewAccountBox(params) {
     const route = useRouter()
@@ -17,10 +18,10 @@ function CreateNewAccountBox(params) {
         email: "",
         password: "",
         checkPWD: "",
-        validEmail: false,
+        validEmail: true,
         emailFocus: false,
-        validPassword: false,
-        validMatch: false,
+        validPassword: true,
+        validMatch: true,
         matchFocus: false,
     })
 
@@ -29,18 +30,18 @@ function CreateNewAccountBox(params) {
     const [success, setSuccess] = useState(false)
 
     useEffect(() => {
-        emailRef.current.focus()
+        // emailRef.current.focus()
     }, [])
 
     useEffect(() => {
+
         const result = EMAIL_REGEX.test(state.email)
-        // console.log(result)
+
         setState({ ...state, validEmail: result })
     }, [state.email])
 
     useEffect(() => {
         const result = PWD_REGEX.test(state.password)
-        // setState({ ...state, validPassword: result })
         const match = state.password === state.checkPWD
         setState({ ...state, validMatch: match, validPassword: result })
 
@@ -51,6 +52,18 @@ function CreateNewAccountBox(params) {
         setShowErrMsg(false)
     }, [state.email, state.password, state.checkPWD])
 
+    const [createUser, { data, loading }] = useMutation(CREATE_USER, {
+
+        onCompleted: (data) => {
+            if (data.createUser.errors) {
+                setShowErrMsg(true)
+                setErrMsg(data.createUser.errors[0].message)
+            } else {
+                route.push("/login")
+            }
+            // console.log("Created user", data)
+        }
+    })
 
     // ----------------------------------------------------------------------------------------------------------------------------------
     // logic
@@ -76,9 +89,12 @@ function CreateNewAccountBox(params) {
     const handleCreateAccountClicked = () => {
         // console.log(state)
         if (!state.validEmail) {
-            setShowErrMsg(true)
-            setErrMsg("The email given is invalid")
-            return
+            const result = EMAIL_REGEX.test(state.email)
+            if (!result) {
+                setShowErrMsg(true)
+                setErrMsg("The email given is invalid")
+                return
+            }
         }
         if (!state.validPassword) {
             setShowErrMsg(true)
@@ -90,6 +106,7 @@ function CreateNewAccountBox(params) {
             setErrMsg("Passwords don't match")
             return
         }
+        createUser({ variables: { email: state.email, password: state.password } })
     }
 
     // ----------------------------------------------------------------------------------------------------------------------------------
@@ -105,7 +122,7 @@ function CreateNewAccountBox(params) {
                         <Typography color='error' ref={errRef} textAlign={'center'} variant="subtitle2">{errMsg}</Typography>
                     </Paper>
                 }
-                <TextField autoComplete="off" ref={emailRef} required value={state.email} onChange={handleEmailChanged} type='email' variant="outlined" label="Email" />
+                <TextField autoComplete="off" required value={state.email} onChange={handleEmailChanged} type='email' variant="outlined" label="Email" />
                 <TextField autoComplete="off" required value={state.password} onChange={handlePassowordChanged} type={'password'} variant="outlined" label="Password" />
                 <TextField autoComplete="off" required value={state.checkPWD} onChange={handleCheckPassowordChanged} type={'password'} variant="outlined" label="Confirm Password" />
                 <Box flexGrow={1} />
@@ -116,7 +133,7 @@ function CreateNewAccountBox(params) {
                     <Button color="primary" variant="contained" onClick={handleCreateAccountClicked} >Create Account ➔</Button>
                 </Stack>
             </Stack>
-        </MainCreateNewAccountBox>
+        </MainCreateNewAccountBox >
     )
 }
 

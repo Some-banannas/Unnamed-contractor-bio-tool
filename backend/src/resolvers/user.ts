@@ -38,6 +38,18 @@ export class UserResolver {
   users(@Ctx() { em }: MyContext): Promise<User[]> {
     return em.find(User, {});
   }
+
+  // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  @Query(() => User, { nullable: true })
+  me(@Ctx() { em, req }: MyContext): Promise<User[]> {
+    if (!req.session.userId) {
+      return null;
+    } else {
+      return em.findOne(User, { id: req.session.userId });
+    }
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   @Query(() => User, { nullable: true })
   user(
     @Arg("id", () => Int) id: number,
@@ -97,7 +109,7 @@ export class UserResolver {
       return null;
     }
     const saltedPassword = await passwordSalt(password);
-    console.log(user);
+    // console.log(user);
     if (typeof saltedPassword != undefined) {
       user.password = saltedPassword;
       await em.persistAndFlush(user);
@@ -110,24 +122,31 @@ export class UserResolver {
   async loginUser(
     @Arg("email", () => String) email: string,
     @Arg("password", () => String) password: string,
-    @Ctx() { em, req }: MyContext
+    @Ctx() { em, req, res }: MyContext
   ): Promise<UserResponse> {
-    const user = await em.findOneOrFail(User, { email: email });
+    let user;
+    try {
+      user = await em.findOneOrFail(User, { email: email });
+    } catch (error) {
+      return {
+        errors: [{ field: "user", message: "User not found" }],
+      };
+    }
     if (!user) {
       return {
         errors: [{ field: "email", message: "Could not find an email" }],
       };
     }
+
     const validPwd = await comparePasswordSalt(user, password);
+
     if (!validPwd) {
       return {
         errors: [{ field: "password", message: "Incorrect password" }],
       };
     }
-    // console.log("heheheheheheh", req);
-    // req.cookies.create;
-    req.session.userId = user.id;
 
+    req.session.userId = user.id;
     return {
       user: user,
     };
