@@ -6,7 +6,8 @@ import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
 import { UserResolver } from "./resolvers/user";
-
+import { MyContext } from "./types";
+import expressJwt from "express-jwt";
 const main = async () => {
   // console.log(microConfig)
   const orm = await MikroORM.init(config);
@@ -19,7 +20,7 @@ const main = async () => {
       resolvers: [HelloResolver, UserResolver],
       validate: false,
     }),
-    context: () => ({ em: orm.em }),
+    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
   });
 
   await apolloServer.start();

@@ -1,10 +1,37 @@
 // @ts-nocheck
 import { User } from "../entities/User";
-import { Arg, Ctx, Int, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Ctx,
+  Field,
+  Int,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+} from "type-graphql";
 import { MyContext } from "../types";
-import { passwordSalt } from "../util/passwordSalt";
-import { type } from "os";
+import { comparePasswordSalt, passwordSalt } from "../util/passwordSalt";
 
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@ObjectType()
+class FieldError {
+  @Field()
+  field: string;
+
+  @Field()
+  message: string;
+}
+@ObjectType()
+class UserResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+
+  @Field(() => User, { nullable: true })
+  user?: User;
+}
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 @Resolver()
 export class UserResolver {
   @Query(() => [User])
@@ -19,18 +46,46 @@ export class UserResolver {
     return em.findOne(User, { id });
   }
 
-  @Mutation(() => User)
+  // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  @Mutation(() => UserResponse)
   async createUser(
     @Arg("email", () => String) email: string,
     @Arg("password", () => String) password: string,
     @Ctx() { em }: MyContext
-  ): Promise<User> {
+  ): Promise<UserResponse> {
+    if (email.length < 5) {
+      return {
+        errors: [{ field: "email", message: "email too short" }],
+      };
+    }
+    if (password.length < 8) {
+      return {
+        errors: [{ field: "password", message: "password too short" }],
+      };
+    }
     const saltedPassword = await passwordSalt(password);
     const user = em.create(User, { email, password: saltedPassword });
-    await em.persistAndFlush(user);
-    return user;
+    try {
+      await em.persistAndFlush(user);
+    } catch (err) {
+      if (err.code === "23505") {
+        // Code 23505 = duplicate email
+        return {
+          errors: [
+            {
+              field: "email",
+              message: "An account with this email alread exists",
+            },
+          ],
+        };
+      }
+    }
+    return {
+      user: user,
+    };
   }
 
+  // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   @Mutation(() => User, { nullable: true })
   async changeUserPassword(
     @Arg("id", () => Int) id: number,
@@ -38,7 +93,6 @@ export class UserResolver {
     @Ctx() { em }: MyContext
   ): Promise<User | null> {
     const user = await em.findOne(User, { id });
-
     if (!user) {
       return null;
     }
@@ -49,5 +103,33 @@ export class UserResolver {
       await em.persistAndFlush(user);
     }
     return user;
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  @Mutation(() => UserResponse)
+  async loginUser(
+    @Arg("email", () => String) email: string,
+    @Arg("password", () => String) password: string,
+    @Ctx() { em, req }: MyContext
+  ): Promise<UserResponse> {
+    const user = await em.findOneOrFail(User, { email: email });
+    if (!user) {
+      return {
+        errors: [{ field: "email", message: "Could not find an email" }],
+      };
+    }
+    const validPwd = await comparePasswordSalt(user, password);
+    if (!validPwd) {
+      return {
+        errors: [{ field: "password", message: "Incorrect password" }],
+      };
+    }
+    // console.log("heheheheheheh", req);
+    // req.cookies.create;
+    req.session.userId = user.id;
+
+    return {
+      user: user,
+    };
   }
 }

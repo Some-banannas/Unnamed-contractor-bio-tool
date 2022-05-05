@@ -12,8 +12,6 @@ function LoginBox(params) {
 
     const errRef = useRef();
 
-
-
     const [state, setState] = useState({
         email: "",
         password: "",

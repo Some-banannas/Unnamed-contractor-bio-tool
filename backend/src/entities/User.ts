@@ -20,7 +20,6 @@ export class User {
   @Property({ unique: true })
   email!: string;
 
-  @Field()
   @Property()
   password!: string;
 }
