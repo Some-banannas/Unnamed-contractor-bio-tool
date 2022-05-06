@@ -7,6 +7,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { LOGOUT, ME } from "../../client/userQueries";
 import { useState } from "react";
 import MainPageAvatar from "./MainPageAvatar";
+import Image from "next/image";
 
 const appBarTheme = createTheme({
     palette: {
@@ -70,9 +71,12 @@ function MainPageLayout({ PageComp, type }) {
             <ThemeProvider theme={appBarTheme}>
                 <AppBar sx={{ padding: 1 }} position="static">
                     <Stack alignItems={'center'} direction={'row'} >
-                        <IconButton>
+                        {/* <IconButton>
                             <MenuIcon sx={{ color: theme.palette.text.primary }} />
-                        </IconButton>
+                        </IconButton> */}
+                        <Box width={40} height={40} sx={{ marginLeft: 2 }}>
+                            <Image src='/images/HeyPaulLogo.png' alt="no image" width={100} height={100} />
+                        </Box>
                         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                             Hey Paul!
                         </Typography>
@@ -91,10 +95,13 @@ function MainPageLayout({ PageComp, type }) {
                     </Stack>
                 </AppBar>
             </ThemeProvider>
-            <Box sx={{ height: "100%" }}>
+            <Box sx={{
+                height: "100%",
+                backgroundImage: `linear-gradient(${theme.palette.primary.main}, ${theme.palette.background.paper})`
+            }}>
                 {PageComp}
             </Box>
-        </Stack>
+        </Stack >
     )
 }
 
