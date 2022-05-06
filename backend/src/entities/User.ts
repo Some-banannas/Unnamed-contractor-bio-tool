@@ -22,4 +22,12 @@ export class User {
 
   @Property()
   password!: string;
+
+  @Field()
+  @Property({ default: "" })
+  firstName!: string;
+
+  @Field()
+  @Property({ default: "" })
+  lastName!: string;
 }

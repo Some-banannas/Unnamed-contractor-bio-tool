@@ -9,11 +9,11 @@ const theme = createTheme({
             main: '#812323',
         },
         secondary: {
-            main: '#491111',
+            main: "#b5b5b5",
         },
         background: {
-            default: '#1a1a1a',
-            paper: '#242424',
+            default: '#491111',
+            paper: '#101010',
         },
         text: {
             primary: 'rgba(255,255,255,0.87)',

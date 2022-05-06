@@ -1,14 +1,11 @@
-import { AppBar, Box, Button } from "@mui/material";
-
-
+import { useRouter } from "next/router"
+import IndexComp from "../components/index/indexComp";
+import MainPageLayout from "../components/MainPageLayout";
 
 export default function Home() {
+    const route = useRouter()
 
     return (
-
-        <Box sx={{ width: '100%', height: '100%', bgcolor: 'red' }}>
-
-        </Box>
-
+        <MainPageLayout type="landingPage" PageComp={<IndexComp />} />
     )
 }

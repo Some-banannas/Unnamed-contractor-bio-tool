@@ -1,14 +1,17 @@
-import { Button, Divider, FormControl, Paper, Stack, TextField, Typography } from "@mui/material"
+import { Button, Divider, FormControl, Paper, Slide, Stack, TextField, Typography } from "@mui/material"
 import { Box } from "@mui/system"
 import { useState, useRef, useEffect } from "react"
 import { MainLoginPaper } from "."
 import { useRouter } from "next/router"
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client"
 import { LOGIN_USER, ME } from "../../client/userQueries"
+import Image from 'next/image';
 
 
 function LoginBox(params) {
     const route = useRouter()
+    const animTimeout = 400
+
     // ----------------------------------------------------------------------------------------------------------------------------------
     // State
 
@@ -23,6 +26,9 @@ function LoginBox(params) {
     const [showErrMsg, setShowErrMsg] = useState(false)
     const [errMsg, setErrMsg] = useState("")
 
+    const [animState, setAnimState] = useState({
+        in: true,
+    })
     // ----------------------------------------------------------------------------------------------------------------------------------
     // logic
 
@@ -48,7 +54,7 @@ function LoginBox(params) {
                 setShowErrMsg(true)
                 setErrMsg(data.loginUser.errors[0].message)
             } else {
-
+                route.push('/dashboard')
             }
         }
     })
@@ -61,7 +67,11 @@ function LoginBox(params) {
     }
 
     const handleGoToCreateAccount = () => {
-        route.push("/create-new-account")
+        setAnimState({ ...animState, in: false })
+        setTimeout(() => {
+            route.push("/create-new-account")
+
+        }, animTimeout);
     }
 
     const handleLogin = () => {
@@ -70,10 +80,14 @@ function LoginBox(params) {
     // ----------------------------------------------------------------------------------------------------------------------------------
     // returned component
     return (
-        <MainLoginPaper variant="elevation" elevation={0}>
+        <MainLoginPaper variant="elevation" elevation={0} sx={{ overflowX: 'hidden' }}>
             <Stack spacing={2} >
-                <Typography textAlign={'center'} variant="h4"  >Hey Paul!</Typography>
-                <Typography textAlign={'center'} variant="h5" color='primary' >Sign in</Typography>
+                <Box width={100} height={100} sx={{ marginLeft: '50%', transform: 'translate(-50%,0%)' }}>
+                    <Image src='/images/HeyPaulLogo.png' alt="no image" width={100} height={100} />
+                </Box>
+                <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                    <Typography variant="h5" >Sign in</Typography>
+                </Slide>
                 {showErrMsg &&
                     <Paper variant="outlined" sx={{ padding: 2 }}>
                         <Typography color='error' ref={errRef} textAlign={'center'} variant="subtitle2">{errMsg}</Typography>
@@ -81,17 +95,28 @@ function LoginBox(params) {
                 }
                 <FormControl>
                     <Stack spacing={2} >
-                        <TextField required value={state.email} onChange={handleEmailChanged} type='email' variant="outlined" label="Email" />
-                        <TextField required value={state.password} onChange={handlePassowordChanged} type={'password'} variant="outlined" label="password" />
-                        <Stack spacing={2} direction='row'>
-                            <Button size="small" color="info" variant="text" >Forgot password?</Button>
-                            <Box flexGrow={1} />
-                        </Stack>
+                        <Slide direction="left" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                            <TextField required value={state.email} onChange={handleEmailChanged} type='email' variant="outlined" label="Email" />
+                        </Slide>
+
+                        <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                            <TextField required value={state.password} onChange={handlePassowordChanged} type={'password'} variant="outlined" label="password" />
+                        </Slide>
+                        <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                            <Stack spacing={2} direction='row'>
+                                <Button size="small" color="info" variant="text" >Forgot password?</Button>
+                                <Box flexGrow={1} />
+                            </Stack>
+                        </Slide>
                         <Divider />
                         <Stack spacing={2} direction='row'>
-                            <Button size="small" color="info" variant="text" onClick={handleGoToCreateAccount} >Create account</Button>
+                            <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                                <Button size="small" color="info" variant="text" onClick={handleGoToCreateAccount} >Create account</Button>
+                            </Slide>
                             <Box flexGrow={1} />
-                            <Button type="submit" color="primary" variant="contained" onClick={handleLogin} >Login ➔</Button>
+                            <Slide direction="left" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                                <Button type="submit" color="primary" variant="contained" onClick={handleLogin} >Login ➔</Button>
+                            </Slide>
                         </Stack>
                     </Stack>
                 </FormControl>

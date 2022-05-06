@@ -63,6 +63,9 @@ export class UserResolver {
   async createUser(
     @Arg("email", () => String) email: string,
     @Arg("password", () => String) password: string,
+    @Arg("firstName", () => String) firstName: string,
+    @Arg("lastName", () => String) lastName: string,
+
     @Ctx() { em }: MyContext
   ): Promise<UserResponse> {
     if (email.length < 5) {
@@ -76,7 +79,12 @@ export class UserResolver {
       };
     }
     const saltedPassword = await passwordSalt(password);
-    const user = em.create(User, { email, password: saltedPassword });
+    const user = em.create(User, {
+      email,
+      password: saltedPassword,
+      firstName: firstName,
+      lastName: lastName,
+    });
     try {
       await em.persistAndFlush(user);
     } catch (err) {
@@ -150,5 +158,19 @@ export class UserResolver {
     return {
       user: user,
     };
+  }
+
+  @Mutation(() => Boolean)
+  async logoutUser(@Ctx() { em, req, res }: MyContext): Promise<Boolean> {
+    return new Promise((res) =>
+      req.session.destroy((err) => {
+        if (err) {
+          console.error(err);
+          res(false);
+          return;
+        }
+        res(true);
+      })
+    );
   }
 }

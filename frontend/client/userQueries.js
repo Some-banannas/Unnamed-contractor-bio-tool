@@ -29,8 +29,8 @@ export const ME = gql`
 `;
 
 export const CREATE_USER = gql`
-mutation CreateUser($password: String!, $email: String!) {
-  createUser(password: $password, email: $email) {
+mutation CreateUser($lastName: String!, $firstName: String!, $password: String!, $email: String!) {
+  createUser(lastName: $lastName, firstName: $firstName, password: $password, email: $email) {
     errors {
       field
       message
@@ -40,8 +40,17 @@ mutation CreateUser($password: String!, $email: String!) {
       createdAt
       updatedAt
       email
+      firstName
+      lastName
     }
   }
+}
+`
+
+
+export const LOGOUT = gql`
+mutation Mutation {
+  logoutUser
 }
 `
 
