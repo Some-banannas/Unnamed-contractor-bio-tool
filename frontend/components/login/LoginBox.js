@@ -1,4 +1,4 @@
-import { Button, Divider, FormControl, Paper, Slide, Stack, TextField, Typography } from "@mui/material"
+import { Avatar, Button, Divider, FormControl, Grow, Paper, Slide, Stack, TextField, Typography } from "@mui/material"
 import { Box } from "@mui/system"
 import { useState, useRef, useEffect } from "react"
 import { MainLoginPaper } from "."
@@ -6,11 +6,12 @@ import { useRouter } from "next/router"
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client"
 import { LOGIN_USER, ME } from "../../client/userQueries"
 import Image from 'next/image';
-
+import LockIcon from '@mui/icons-material/Lock';
+import theme from "../../src/theme"
 
 function LoginBox(params) {
     const route = useRouter()
-    const animTimeout = 400
+    const animTimeout = 800
 
     // ----------------------------------------------------------------------------------------------------------------------------------
     // State
@@ -43,7 +44,7 @@ function LoginBox(params) {
             // console.log("Logged In", data)
             if (data.me !== null) {
                 console.log("Logged In", data)
-
+                route.push('/dashboard')
             }
         }
     })
@@ -54,7 +55,11 @@ function LoginBox(params) {
                 setShowErrMsg(true)
                 setErrMsg(data.loginUser.errors[0].message)
             } else {
-                route.push('/dashboard')
+                setAnimState({ ...animState, in: false })
+                setTimeout(() => {
+                    route.push("/dashboard")
+
+                }, animTimeout);
             }
         }
     })
@@ -82,12 +87,19 @@ function LoginBox(params) {
     return (
         <MainLoginPaper variant="elevation" elevation={0} sx={{ overflowX: 'hidden' }}>
             <Stack spacing={2} >
-                <Box width={100} height={100} sx={{ marginLeft: '50%', transform: 'translate(-50%,0%)' }}>
+                {/* <Box width={100} height={100} sx={{ marginLeft: '50%', transform: 'translate(-50%,0%)' }}>
                     <Image src='/images/HeyPaulLogo.png' alt="no image" width={100} height={100} />
+                </Box> */}
+                <Box alignSelf={'center'}>
+                    <Grow in={animState.in} timeout={animTimeout - (animTimeout / 7.0)} mountOnEnter unmountOnExit>
+                        <Avatar sx={{ bgcolor: theme.palette.secondary.main }}>
+                            <LockIcon />
+                        </Avatar>
+                    </Grow>
                 </Box>
-                <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
-                    <Typography variant="h5" >Sign in</Typography>
-                </Slide>
+                <Grow in={animState.in} timeout={animTimeout - (animTimeout / 6.0)} mountOnEnter unmountOnExit>
+                    <Typography textAlign={'center'} variant="h5" >Sign in</Typography>
+                </Grow>
                 {showErrMsg &&
                     <Paper variant="outlined" sx={{ padding: 2 }}>
                         <Typography color='error' ref={errRef} textAlign={'center'} variant="subtitle2">{errMsg}</Typography>
@@ -95,28 +107,28 @@ function LoginBox(params) {
                 }
                 <FormControl>
                     <Stack spacing={2} >
-                        <Slide direction="left" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                        <Grow in={animState.in} timeout={animTimeout - (animTimeout / 5.0)} mountOnEnter unmountOnExit>
                             <TextField required value={state.email} onChange={handleEmailChanged} type='email' variant="outlined" label="Email" />
-                        </Slide>
+                        </Grow>
 
-                        <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                        <Grow in={animState.in} timeout={animTimeout - (animTimeout / 4.0)} mountOnEnter unmountOnExit>
                             <TextField required value={state.password} onChange={handlePassowordChanged} type={'password'} variant="outlined" label="password" />
-                        </Slide>
-                        <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                        </Grow>
+                        <Grow in={animState.in} timeout={animTimeout - (animTimeout / 3.0)} mountOnEnter unmountOnExit>
                             <Stack spacing={2} direction='row'>
-                                <Button size="small" color="info" variant="text" >Forgot password?</Button>
+                                <Button size="small" color="secondary" variant="text" >Forgot password?</Button>
                                 <Box flexGrow={1} />
                             </Stack>
-                        </Slide>
-                        <Divider />
+                        </Grow>
+                        {/* <Divider /> */}
                         <Stack spacing={2} direction='row'>
-                            <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
-                                <Button size="small" color="info" variant="text" onClick={handleGoToCreateAccount} >Create account</Button>
-                            </Slide>
+                            <Grow in={animState.in} timeout={animTimeout - (animTimeout / 2.0)} mountOnEnter unmountOnExit>
+                                <Button size="small" color="secondary" variant="text" onClick={handleGoToCreateAccount} >Create account</Button>
+                            </Grow>
                             <Box flexGrow={1} />
-                            <Slide direction="left" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                            <Grow in={animState.in} timeout={animTimeout - (animTimeout / 2.0)} mountOnEnter unmountOnExit>
                                 <Button type="submit" color="primary" variant="contained" onClick={handleLogin} >Login ➔</Button>
-                            </Slide>
+                            </Grow>
                         </Stack>
                     </Stack>
                 </FormControl>

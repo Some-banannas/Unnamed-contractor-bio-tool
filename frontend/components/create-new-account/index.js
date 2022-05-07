@@ -2,7 +2,7 @@ import { Box, InputBase, Modal, Paper, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import theme from "../../src/theme";
 
-export const MainCreateNewAccountBox = styled(Paper)((props) => ({
+export const MainCreateNewAccountBox = styled(Box)((props) => ({
     // position: "absolute",
     marginLeft: "50%",
     marginTop: 100,

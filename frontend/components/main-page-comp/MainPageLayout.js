@@ -1,4 +1,4 @@
-import { AppBar, Avatar, Box, Button, Divider, IconButton, Menu, MenuItem, MenuList, Stack, Toolbar, Typography } from "@mui/material"
+import { AppBar, Avatar, Box, Button, ButtonGroup, Divider, Drawer, Grow, IconButton, List, ListItem, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, Paper, Stack, Tabs, Toolbar, Typography } from "@mui/material"
 import theme from "../../src/theme"
 import MenuIcon from '@mui/icons-material/Menu'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -8,38 +8,36 @@ import { LOGOUT, ME } from "../../client/userQueries";
 import { useState } from "react";
 import MainPageAvatar from "./MainPageAvatar";
 import Image from "next/image";
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
-const appBarTheme = createTheme({
+const sideBarTheme = createTheme({
     palette: {
-        mode: 'light',
-        primary: {
-            main: theme.palette.primary.main,
-        },
-        secondary: {
-            main: theme.palette.secondary.main,
-        },
+        mode: 'dark',
+        // primary: {
+        //     main: '#9a7807',
+        // },
+        // secondary: {
+        //     main: '#78fbd4',
+        // },
+        // success: {
+        //     main: '#5bbb09',
+        // },
+        // info: {
+        //     main: '#f8f8f9',
+        // },
         background: {
-            default: theme.palette.background.default,
-            paper: theme.palette.background.paper,
+            default: 'transparent',
+            paper: 'transparent',
         },
-        text: {
-            primary: theme.palette.text.primary,
-            secondary: theme.palette.text.secondary,
-            disabled: theme.palette.text.disabled,
-            hint: theme.palette.text.hint,
-        },
-        error: {
-            main: theme.palette.error.main,
-        },
-        divider: theme.palette.divider,
-
     },
+
 });
+
 function MainPageLayout({ PageComp, type }) {
     const route = useRouter()
     const [isLoggedIn, setIsLoggedIn] = useState(false)
-    const [anchorEl, setAnchorEl] = useState(null)
-    const open = Boolean(anchorEl);
+    const [menuOpen, setMenuOpen] = useState(false)
+    const [userInfo, setUserInfo] = useState({})
     // -----------------------------------------------------------------------------------------------------------------------------------
     const { } = useQuery(ME, {
         fetchPolicy: 'network-only',
@@ -51,9 +49,19 @@ function MainPageLayout({ PageComp, type }) {
                 }
             } else {
                 setIsLoggedIn(true)
+                // console.log(data.me)
+                setUserInfo(data.me)
             }
         }
     })
+
+
+    const handleMenuClicked = () => {
+        setMenuOpen(true)
+    }
+    const handleMenuClose = () => {
+        setMenuOpen(false)
+    }
 
 
     // -----------------------------------------------------------------------------------------------------------------------------------
@@ -68,39 +76,62 @@ function MainPageLayout({ PageComp, type }) {
                 // display: 'flex'
             }}
         >
-            <ThemeProvider theme={appBarTheme}>
-                <AppBar sx={{ padding: 1 }} position="static">
-                    <Stack alignItems={'center'} direction={'row'} >
-                        {/* <IconButton>
-                            <MenuIcon sx={{ color: theme.palette.text.primary }} />
-                        </IconButton> */}
-                        <Box width={40} height={40} sx={{ marginLeft: 2 }}>
-                            <Image src='/images/HeyPaulLogo.png' alt="no image" width={100} height={100} />
-                        </Box>
-                        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-                            Hey Paul!
-                        </Typography>
-                        <Box flexGrow={1} />
-                        {type === 'landingPage' &&
-                            <Button onClick={() => { route.push("/login") }} variant="text" size="small" sx={{ color: "white" }}>
-                                Login ➔
-                            </Button>
-                        }
-                        {isLoggedIn &&
-                            <Box name="test">
-                                <MainPageAvatar />
-                            </Box>
-                        }
+            <Box sx={{ padding: 1, height: 80 }} position="static">
+                <Stack alignItems={'center'} direction={'row'} >
+                    {isLoggedIn &&
+                        <>
+                            <IconButton disabled={!isLoggedIn} onClick={handleMenuClicked} >
+                                <MenuIcon sx={{ color: theme.palette.text.primary }} />
+                            </IconButton>
+                            <Drawer
+                                anchor="left"
+                                open={menuOpen}
+                                onClose={handleMenuClose}
+                                elevation={0}
+                            >
+                                <Box sx={{ width: 250, bgcolor: 'transparent' }} >
+                                    <List sx={{ width: 250, bgcolor: 'transparent' }} >
+                                        <ListItem button onClick={() => { route.push('/dashboard') }} >
+                                            <ListItemIcon>
+                                                <DashboardIcon />
+                                            </ListItemIcon>
+                                            <ListItemText primary={'Dashboard'} />
+                                        </ListItem>
+                                    </List>
+                                </Box>
 
-                    </Stack>
-                </AppBar>
-            </ThemeProvider>
+                            </Drawer>
+                        </>
+                    }
+
+                    <Box flexGrow={1} />
+
+                    {isLoggedIn &&
+                        <Box name="test">
+                            <Stack direction={'row'} spacing={1}>
+                                <MainPageAvatar />
+                                <Stack >
+                                    {/* <Typography variant="subtitle2" sx={{ paddingTop: 1, marginRight: 2 }}>{userInfo.firstName}</Typography> */}
+                                    {/* <Typography>{userInfo.lastName}</Typography> */}
+                                </Stack>
+                            </Stack>
+                        </Box>
+                    }
+
+                </Stack>
+            </Box >
+
             <Box sx={{
                 height: "100%",
-                backgroundImage: `linear-gradient(${theme.palette.primary.main}, ${theme.palette.background.paper})`
+                width: '100%',
+
             }}>
+                <Box sx={{ background: `url("/images/background.jpg")`, position: 'fixed', inset: 0, zIndex: -1, backgroundSize: "cover" }} >
+
+                </Box>
                 {PageComp}
             </Box>
+            {/* <Box sx={{ transform: 'rotate(-45deg)', width: '100vw', height: 80, position: 'fixed', bottom: 0, zIndex: -1, bgcolor: theme.palette.primary.main, borderRadius: 100 }} /> */}
         </Stack >
     )
 }

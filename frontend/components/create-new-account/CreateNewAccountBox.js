@@ -1,4 +1,4 @@
-import { AppBar, Button, Divider, FormControl, Paper, Slide, Stack, TextField, Typography } from "@mui/material"
+import { AppBar, Avatar, Button, Divider, FormControl, Grow, Icon, Paper, Slide, Stack, TextField, Typography } from "@mui/material"
 import { Box } from "@mui/system"
 import { useState, useRef, useEffect } from "react"
 import { MainCreateNewAccountBox } from "./index"
@@ -7,14 +7,15 @@ import { setRequestMeta } from "next/dist/server/request-meta"
 import { useMutation, useQuery } from '@apollo/client'
 import { CREATE_USER, Login_User, ME } from "../../client/userQueries"
 import Image from 'next/image';
-
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import theme from "../../src/theme"
 function CreateNewAccountBox(params) {
     const route = useRouter()
     // ----------------------------------------------------------------------------------------------------------------------------------
     // State
     const errRef = useRef()
     const emailRef = useRef()
-    const animTimeout = 400
+    const animTimeout = 800
 
     const logoWidth = 100
 
@@ -69,7 +70,11 @@ function CreateNewAccountBox(params) {
                 setShowErrMsg(true)
                 setErrMsg(data.createUser.errors[0].message)
             } else {
-                route.push("/login")
+                setAnimState({ ...animState, in: false })
+                setTimeout(() => {
+                    route.push("/login")
+
+                }, animTimeout);
             }
             // console.log("Created user", data)
         }
@@ -136,44 +141,49 @@ function CreateNewAccountBox(params) {
             <Stack spacing={2} >
                 {/* <Typography textAlign={'center'} variant="h4"  >Hey Paul!</Typography> */}
 
-                <Box width={100} height={100} sx={{ marginLeft: '50%', transform: 'translate(-50%,0%)' }}>
-                    <Image src='/images/HeyPaulLogo.png' alt="no image" width={100} height={100} />
+                <Box alignSelf={'center'}>
+                    {/* <Image src='/images/HeyPaulLogo.png' alt="no image" width={100} height={100} /> */}
+                    <Grow in={animState.in} timeout={animTimeout - (animTimeout / 7.0)} mountOnEnter unmountOnExit>
+                        <Avatar sx={{ bgcolor: theme.palette.secondary.main }}>
+                            <AddCircleIcon />
+                        </Avatar>
+                    </Grow>
                 </Box>
-                <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
-                    <Typography variant="h5"  >Create new account</Typography>
-                </Slide>
+                <Grow in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                    <Typography textAlign={'center'} variant="h5"  >Create new account</Typography>
+                </Grow>
                 {showErrMsg &&
                     <Paper variant="outlined" sx={{ padding: 2 }}>
                         <Typography color='error' ref={errRef} textAlign={'center'} variant="subtitle2">{errMsg}</Typography>
                     </Paper>
                 }
                 <Stack direction={'row'} spacing={1}>
-                    <Slide direction="left" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                    <Grow in={animState.in} timeout={animTimeout - (animTimeout / 6.0)} mountOnEnter unmountOnExit>
                         <TextField value={state.firstName} onChange={handleCheckFirstNameChanged} variant="outlined" label="First Name" />
-                    </Slide>
-                    <Slide direction="left" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                    </Grow>
+                    <Grow in={animState.in} timeout={animTimeout - (animTimeout / 6.0)} mountOnEnter unmountOnExit>
                         <TextField value={state.lastName} onChange={handleCheckLasttNameChanged} variant="outlined" label="Last Name" />
-                    </Slide>
+                    </Grow>
                 </Stack>
-                <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                <Grow in={animState.in} timeout={animTimeout - (animTimeout / 5.0)} mountOnEnter unmountOnExit>
                     <TextField autoComplete="off" required value={state.email} onChange={handleEmailChanged} type='email' variant="outlined" label="Email" />
-                </Slide>
-                <Slide direction="left" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                </Grow>
+                <Grow in={animState.in} timeout={animTimeout - (animTimeout / 4.0)} mountOnEnter unmountOnExit>
                     <TextField autoComplete="off" required value={state.password} onChange={handlePassowordChanged} type={'password'} variant="outlined" label="Password" />
-                </Slide>
-                <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                </Grow>
+                <Grow in={animState.in} timeout={animTimeout - (animTimeout / 3.0)} mountOnEnter unmountOnExit>
                     <TextField autoComplete="off" required value={state.checkPWD} onChange={handleCheckPassowordChanged} type={'password'} variant="outlined" label="Confirm Password" />
-                </Slide>
+                </Grow>
                 <Box flexGrow={1} />
-                <Divider />
+                {/* <Divider /> */}
                 <Stack spacing={2} direction='row'>
-                    <Slide direction="right" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
-                        <Button size="small" color="info" variant="text" onClick={handleGoToLogin} >Login here</Button>
-                    </Slide>
+                    <Grow in={animState.in} timeout={animTimeout - (animTimeout / 2.0)} mountOnEnter unmountOnExit>
+                        <Button size="small" color="secondary" variant="text" onClick={handleGoToLogin} >Login here</Button>
+                    </Grow>
                     <Box flexGrow={1} />
-                    <Slide direction="left" in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                    <Grow in={animState.in} timeout={animTimeout - (animTimeout / 2.0)} mountOnEnter unmountOnExit>
                         <Button color="primary" variant="contained" onClick={handleCreateAccountClicked} >Create Account ➔</Button>
-                    </Slide>
+                    </Grow>
                 </Stack>
             </Stack>
         </MainCreateNewAccountBox >

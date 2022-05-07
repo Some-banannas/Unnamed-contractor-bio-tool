@@ -14,7 +14,7 @@ import Logout from '@mui/icons-material/Logout';
 import { useMutation } from '@apollo/client';
 import { LOGOUT } from '../../client/userQueries';
 import { useRouter } from 'next/router';
-
+import theme from '../../src/theme';
 function MainPageAvatar() {
     const route = useRouter()
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -45,7 +45,7 @@ function MainPageAvatar() {
                         aria-haspopup="true"
                         aria-expanded={open ? 'true' : undefined}
                     >
-                        <Avatar sx={{ width: 32, height: 32 }}></Avatar>
+                        <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.secondary.main }}></Avatar>
                     </IconButton>
                 </Tooltip>
             </Box>
@@ -85,7 +85,7 @@ function MainPageAvatar() {
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 <MenuItem>
-                    <Avatar /> Profile
+                    <Avatar sx={{ bgcolor: theme.palette.secondary.main }} /> Profile
                 </MenuItem>
                 {/* <MenuItem>
                     <Avatar /> My account

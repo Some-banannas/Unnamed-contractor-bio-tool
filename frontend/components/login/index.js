@@ -2,7 +2,7 @@ import { Box, InputBase, Modal, Paper, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import theme from "../../src/theme";
 
-export const MainLoginPaper = styled(Paper)((props) => ({
+export const MainLoginPaper = styled(Box)((props) => ({
     marginLeft: "50%",
     marginTop: 100,
     transform: "translate(-50%,0%)",

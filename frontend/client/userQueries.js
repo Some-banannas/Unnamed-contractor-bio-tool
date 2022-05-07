@@ -24,6 +24,8 @@ export const ME = gql`
             createdAt
             updatedAt
             email
+            firstName
+            lastName
         }
     }
 `;
