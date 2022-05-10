@@ -5,10 +5,11 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { useRouter } from "next/router"
 import { useMutation, useQuery } from "@apollo/client";
 import { LOGOUT, ME } from "../../client/userQueries";
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import MainPageAvatar from "./MainPageAvatar";
 import Image from "next/image";
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import eventBus from "../EventBus";
 
 const sideBarTheme = createTheme({
     palette: {
@@ -38,8 +39,13 @@ function MainPageLayout({ PageComp, type }) {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [menuOpen, setMenuOpen] = useState(false)
     const [userInfo, setUserInfo] = useState({})
+    const [animTimeout, setAnimTimeout] = useState(500)
+    const mainRef = useRef(null)
+
+
+
     // -----------------------------------------------------------------------------------------------------------------------------------
-    const { } = useQuery(ME, {
+    const { data: meData, loading: meLoading, error: meError } = useQuery(ME, {
         fetchPolicy: 'network-only',
         onCompleted: (data) => {
             if (data.me === null) {
@@ -54,7 +60,29 @@ function MainPageLayout({ PageComp, type }) {
             }
         }
     })
+    const [animState, setAnimState] = useState({
+        in: true,
+    })
 
+    const handleLogout = (e) => {
+        // eventBus.dispatch("animWait", { message: 'animWait' })
+        eventBus.remove('logout')
+        console.log("anim timeout", e.animwait)
+        setAnimTimeout(e.animwait)
+    }
+
+
+    // useLayoutEffect(() => {
+    //     if (!mainRef.current) { return }
+    //     mainRef.current.addEventListener("logout", handleLogout)
+    //     return () => {
+    //         try {
+    //             mainRef.current.removeEventListener("logout")
+    //         } catch (error) {
+
+    //         }
+    //     };
+    // }, [mainRef.current])
 
     const handleMenuClicked = () => {
         setMenuOpen(true)
@@ -62,6 +90,8 @@ function MainPageLayout({ PageComp, type }) {
     const handleMenuClose = () => {
         setMenuOpen(false)
     }
+
+
 
 
     // -----------------------------------------------------------------------------------------------------------------------------------
@@ -75,14 +105,17 @@ function MainPageLayout({ PageComp, type }) {
                 overflowY: 'auto',
                 // display: 'flex'
             }}
+
         >
-            <Box sx={{ padding: 1, height: 80 }} position="static">
+            <Box ref={mainRef} sx={{ padding: 1, height: 80 }} position="static">
                 <Stack alignItems={'center'} direction={'row'} >
                     {isLoggedIn &&
                         <>
-                            <IconButton disabled={!isLoggedIn} onClick={handleMenuClicked} >
-                                <MenuIcon sx={{ color: theme.palette.text.primary }} />
-                            </IconButton>
+                            <Grow in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
+                                <IconButton disabled={!isLoggedIn} onClick={handleMenuClicked} >
+                                    <MenuIcon sx={{ color: theme.palette.text.primary }} />
+                                </IconButton>
+                            </Grow>
                             <Drawer
                                 anchor="left"
                                 open={menuOpen}
@@ -109,7 +142,9 @@ function MainPageLayout({ PageComp, type }) {
                     {isLoggedIn &&
                         <Box name="test">
                             <Stack direction={'row'} spacing={1}>
+
                                 <MainPageAvatar />
+
                                 <Stack >
                                     {/* <Typography variant="subtitle2" sx={{ paddingTop: 1, marginRight: 2 }}>{userInfo.firstName}</Typography> */}
                                     {/* <Typography>{userInfo.lastName}</Typography> */}
@@ -124,7 +159,7 @@ function MainPageLayout({ PageComp, type }) {
             <Box sx={{
                 height: "100%",
                 width: '100%',
-
+                position: 'relative'
             }}>
                 <Box sx={{ background: `url("/images/background.jpg")`, position: 'fixed', inset: 0, zIndex: -1, backgroundSize: "cover" }} >
 

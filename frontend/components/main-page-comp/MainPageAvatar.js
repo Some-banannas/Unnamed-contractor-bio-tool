@@ -15,10 +15,14 @@ import { useMutation } from '@apollo/client';
 import { LOGOUT } from '../../client/userQueries';
 import { useRouter } from 'next/router';
 import theme from '../../src/theme';
+import eventBus from '../EventBus';
+import { useEffect } from 'react'
+import { logoutEvent } from '../../src/events';
 function MainPageAvatar() {
     const route = useRouter()
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+    const [isLoggedIn, setisLoggedIn] = React.useState(true)
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -26,12 +30,34 @@ function MainPageAvatar() {
         setAnchorEl(null);
     };
 
+    const animTimeout = 500
+
     const [logoutUser, { }] = useMutation(LOGOUT, {
         fetchPolicy: 'network-only',
         onCompleted: (data) => {
-            route.push('/login')
+            // console.log("Logged out")
+            eventBus.dispatch("logout", { message: "logout", animTimeout: animTimeout })
+            setisLoggedIn(false)
+            reRouteAfterAnim()
         }
     })
+    const reRouteAfterAnim = () => {
+        setTimeout(() => {
+            // console.log('hererere')
+            // eventBus.remove("logout")
+            route.push('/login')
+        }, animTimeout);
+    }
+
+    useEffect(() => {
+
+        // eventBus.dispatch("logout", { message: "logout", animTimeout: animTimeout })
+        return () => {
+        }
+    }, [isLoggedIn])
+
+
+
     return (
 
         <React.Fragment>
@@ -45,7 +71,7 @@ function MainPageAvatar() {
                         aria-haspopup="true"
                         aria-expanded={open ? 'true' : undefined}
                     >
-                        <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.secondary.main }}></Avatar>
+                        <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.primary.main }}></Avatar>
                     </IconButton>
                 </Tooltip>
             </Box>
@@ -85,7 +111,7 @@ function MainPageAvatar() {
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 <MenuItem>
-                    <Avatar sx={{ bgcolor: theme.palette.secondary.main }} /> Profile
+                    <Avatar sx={{ bgcolor: theme.palette.primary.main }} /> Profile
                 </MenuItem>
                 {/* <MenuItem>
                     <Avatar /> My account
@@ -105,7 +131,7 @@ function MainPageAvatar() {
                 </MenuItem> */}
                 <MenuItem onClick={() => { logoutUser() }}>
                     <ListItemIcon>
-                        <Logout color='secondary' fontSize="small" />
+                        <Logout color='primary' fontSize="small" />
                     </ListItemIcon>
                     Logout
                 </MenuItem>
