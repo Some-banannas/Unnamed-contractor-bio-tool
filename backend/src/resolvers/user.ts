@@ -12,6 +12,7 @@ import {
 } from "type-graphql";
 import { MyContext } from "../types";
 import { comparePasswordSalt, passwordSalt } from "../util/passwordSalt";
+import { Profile } from "../entities/Profile";
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 @ObjectType()
@@ -85,8 +86,12 @@ export class UserResolver {
       firstName: firstName,
       lastName: lastName,
     });
+
+    const profile = em.create(Profile, {
+      owningUser: user,
+    });
     try {
-      await em.persistAndFlush(user);
+      await em.persist(user).persist(profile).flush();
     } catch (err) {
       if (err.code === "23505") {
         // Code 23505 = duplicate email

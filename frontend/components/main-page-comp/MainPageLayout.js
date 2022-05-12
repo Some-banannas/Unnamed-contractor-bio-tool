@@ -67,7 +67,7 @@ function MainPageLayout({ PageComp, type }) {
     const handleLogout = (e) => {
         // eventBus.dispatch("animWait", { message: 'animWait' })
         eventBus.remove('logout')
-        console.log("anim timeout", e.animwait)
+        // console.log("anim timeout", e.animwait)
         setAnimTimeout(e.animwait)
     }
 

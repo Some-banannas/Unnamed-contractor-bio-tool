@@ -1,5 +1,14 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import {
+  Collection,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryKey,
+  Property,
+  UuidType,
+} from "@mikro-orm/core";
 import { Field, ObjectType } from "type-graphql";
+import { Profile } from "./Profile";
 
 @ObjectType()
 @Entity()
@@ -7,6 +16,10 @@ export class User {
   @Field()
   @PrimaryKey()
   id!: number;
+
+  // // @Field()
+  // @Property({ type: "varchar(255)" })
+  // uuid = new UuidType();
 
   @Field()
   @Property({ type: "date" })
@@ -30,4 +43,7 @@ export class User {
   @Field()
   @Property({ default: "" })
   lastName!: string;
+
+  @OneToMany(() => Profile, (profile) => profile.owningUser)
+  profiles = new Collection<Profile>(this);
 }

@@ -43,7 +43,7 @@ function LoginBox(params) {
         onCompleted: (data) => {
             // console.log("Logged In", data)
             if (data.me !== null) {
-                console.log("Logged In", data)
+                // console.log("Logged In", data)
                 route.push('/dashboard')
             }
         }

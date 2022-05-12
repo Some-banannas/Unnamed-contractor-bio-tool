@@ -9,6 +9,7 @@ import { UserResolver } from "./resolvers/user";
 import { MyContext } from "./types";
 // import sessions from "client-sessions";
 import session from "express-session";
+import { ProfileResolver } from "./resolvers/profile";
 const main = async () => {
   // console.log(microConfig)
   const orm = await MikroORM.init(config);
@@ -39,7 +40,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver, UserResolver],
+      resolvers: [HelloResolver, UserResolver, ProfileResolver],
       validate: false,
     }),
     context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),

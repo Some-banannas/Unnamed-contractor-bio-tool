@@ -1,4 +1,4 @@
-import { MissingFieldError, useQuery } from "@apollo/client"
+import { MissingFieldError, useMutation, useQuery } from "@apollo/client"
 import { Box, Button, Divider, Grow, IconButton, Stack, Typography } from "@mui/material"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { BioMainBox, ContentBoxFullHeight, ContentBoxHalfHeight, MainDashboardContainer, MainDashboardContainerLeft, MainDashboardContainerRight, MainDashboardStack } from "."
@@ -14,6 +14,8 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import PinterestIcon from '@mui/icons-material/Pinterest';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import RedditIcon from '@mui/icons-material/Reddit';
+import { PROFILE, UPDATE_PROFILE } from "../../client/profileQueries"
+import EditProfileModal from "../modals/EditProfile/EditProfileModal"
 
 
 function DashboardComp(params) {
@@ -22,6 +24,8 @@ function DashboardComp(params) {
         in: true,
     })
     const [userData, setUserData] = useState({})
+    const [profile, setProfile] = useState({})
+    const [openEditProfileModal, setOpenEditProfileModal] = useState(false)
     // const [count, setCount] = useState(0)
 
     const mainRef = useRef(null)
@@ -33,6 +37,15 @@ function DashboardComp(params) {
             setUserData(data.me)
         }
     })
+    const { data: profileData, loading: profileLoading, error: profileError } = useQuery(PROFILE, {
+        fetchPolicy: 'network-only',
+        onCompleted: (data) => {
+            // console.log(data)
+            setProfile(data.profile[0])
+        }
+    })
+
+
 
     function handleLogout(e) {
         // console.log(count + 1)
@@ -54,34 +67,37 @@ function DashboardComp(params) {
     }, [])
 
 
-    if (meLoading) {
+    const handleCloseEditProfileModal = () => {
+        setOpenEditProfileModal(false)
+    }
+
+    if (meLoading || profileLoading) {
         return (
             <></>
         )
     }
 
-    // console.log(userData)
+    // console.log(profile)
 
     return (
         < >
+            <EditProfileModal open={openEditProfileModal} onClose={handleCloseEditProfileModal} />
             <MainDashboardContainer ref={mainRef}>
                 <MainDashboardStack direction={'row'} sx={{ width: '100%', height: '100%' }}>
-
-
                     <Grow in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
                         <MainDashboardContainerRight>
                             <Stack sx={{ width: '100%', height: '100%', padding: 1, overflowY: 'auto' }}>
                                 <ContentBoxFullHeight sx={{ marginTop: 2 }}>
                                     <Stack spacing={1}>
                                         <Stack direction={'row'}>
-                                            <Typography variant="h5">
-                                                Your Bio
+                                            <Typography sx={{ color: 'lightgrey' }} fontWeight={'Light'} variant="h5">
+                                                Your card
                                             </Typography>
                                             <Box flexGrow={1} />
                                             <IconButton color="primary">
                                                 <ShareIcon />
                                             </IconButton>
-                                            <IconButton color="primary">
+                                            <IconButton color="primary" onClick={() => { setOpenEditProfileModal(true) }}>
                                                 <EditIcon />
                                             </IconButton>
 
@@ -95,27 +111,14 @@ function DashboardComp(params) {
                                                     </Typography>
 
                                                 </Stack>
-                                                <Typography fontStyle={'italic'} fontWeight={'light'} variant="subtitle2" >
-                                                    Front-end Developer
+                                                <Typography fontStyle={'italic'} sx={{ fontWeight: 'light' }} variant="subtitle2" >
+                                                    {profile.jobTitle}
                                                 </Typography>
                                                 <Typography variant="subtitle1" color={'secondary'}>
                                                     About me
                                                 </Typography>
                                                 <Typography sx={{ maxHeight: 140, overflowY: 'auto', paddingRight: 1 }} variant="body1">
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                                                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                                    Viverra tellus in hac habitasse platea dictumst.
-                                                    At urna condimentum mattis pellentesque id nibh tortor id.
-                                                    Proin sed libero enim sed faucibus.
-                                                    Habitant morbi tristique senectus et netus et malesuada fames ac.
-                                                    Vestibulum sed arcu non odio euismod lacinia at quis risus. Aenean et tortor at risus viverra adipiscing at.
-                                                    Vulputate enim nulla aliquet porttitor lacus luctus accumsan tortor posuere.
-                                                    Adipiscing diam donec adipiscing tristique risus nec.
-                                                    Mattis molestie a iaculis at erat pellentesque adipiscing commodo.
-                                                    Mattis molestie a iaculis at erat pellentesque adipiscing commodo.
-                                                    Leo integer malesuada nunc vel risus commodo viverra maecenas accumsan.
-                                                    Eu volutpat odio facilisis mauris sit amet massa vitae.
-                                                    Diam quam nulla porttitor massa id.
+                                                    {profile.aboutMe}
                                                 </Typography>
                                                 <Stack direction={'row'} sx={{ marginTop: 2 }}>
                                                     <Box flexGrow={1} />
@@ -158,7 +161,7 @@ function DashboardComp(params) {
                             <Grow in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
                                 <ContentBoxHalfHeight sx={{ marginTop: 2 }}>
                                     <Stack>
-                                        <Typography style={{}} variant="h5">
+                                        <Typography sx={{ color: 'lightgrey' }} fontWeight={'light'} style={{}} variant="h5">
                                             Number of views
                                         </Typography>
                                     </Stack>
@@ -170,7 +173,7 @@ function DashboardComp(params) {
                             <Grow in={animState.in} timeout={animTimeout} mountOnEnter unmountOnExit>
                                 <ContentBoxHalfHeight sx={{ marginTop: 2 }}>
                                     <Stack>
-                                        <Typography variant="h5">
+                                        <Typography sx={{ color: 'lightgrey' }} fontWeight={'light'} variant="h5">
                                             Testimonials
                                         </Typography>
                                     </Stack>
